@@ -1,0 +1,224 @@
+Part B — Deterministic Reflection Agent
+1. Overview
+
+For Part B, I implemented a command-line agent that executes the reflection tree designed in Part A.
+
+The goal was to translate a structured psychological model into a working, deterministic system—one that guides users through reflection without relying on any LLM at runtime.
+
+The agent walks the user through three axes:
+
+Agency (Locus): how much control they exercised
+Contribution (Orientation): what they gave vs expected
+Perspective (Radius): how widely they considered others
+
+The system guarantees deterministic execution:
+the same inputs always produce the same path and the same output, ensuring consistency, auditability, and trust.
+
+2. Architecture
+2.1 Separation of Data and Logic
+
+All conversational intelligence is encoded in the tree (.tsv file), not in the code.
+
+The agent acts purely as an execution engine:
+
+It reads nodes
+Displays content
+Routes based on predefined rules
+
+This separation makes the system:
+
+Easy to modify without touching code
+Reusable across interfaces (CLI, web, etc.)
+Fully transparent in behavior
+2.2 Core Components
+
+Tree Loader
+Parses the TSV file into structured nodes.
+
+Execution Engine
+Walks the tree node-by-node:
+
+question → capture input
+decision → evaluate rules and route
+reflection/bridge → display and continue
+
+State Manager
+Maintains:
+
+User answers (answers[node_id])
+Signal counts across axes
+
+Template Renderer
+Injects prior answers into reflections:
+
+"You said '{A1_OPEN.answer}'..."
+3. Deterministic Branching
+
+Branching is entirely rule-based.
+
+Example:
+
+answer=Productive|Mixed → A1_Q1_HIGH  
+answer=Tough|Frustrating → A1_Q1_LOW
+
+At runtime:
+
+The agent reads the previous answer
+Matches it against defined rules
+Routes to the corresponding node
+
+There is:
+
+No randomness
+No inference
+No ambiguity
+
+This ensures every path is predictable and debuggable.
+
+4. Signal-Based Reasoning
+
+Instead of using opaque scoring models, the system uses explicit signal accumulation.
+
+Each response contributes to an axis:
+
+axis1: internal / external  
+axis2: contribution / entitlement  
+axis3: self / altro
+
+Signals are tallied during execution:
+
+state.axis1.internal += 1
+
+At key points, the system determines the dominant orientation per axis.
+
+This approach is:
+
+Transparent
+Interpretable
+Easy to audit
+
+At any point, the user’s journey can be reconstructed from stored answers and signals.
+
+5. Psychological Mapping
+
+Each axis directly operationalizes established behavioral frameworks:
+
+Agency (Locus of Control):
+Questions distinguish between reaction-based vs action-based interpretations of events.
+Contribution (Entitlement vs Citizenship):
+Prompts surface whether focus is on what was given vs what was expected.
+Perspective (Self vs Others):
+Questions expand the frame from individual experience to team and system impact.
+
+Rather than referencing theory abstractly, these constructs are encoded into forced-choice questions, making them observable and measurable.
+
+6. Branching Strategy
+
+The tree is designed using a three-stage structure:
+
+Early divergence → captures meaningful mindset differences
+Mid-stage compression → avoids combinatorial explosion
+Late synthesis → produces clear, interpretable reflections
+
+This is a deliberate trade-off:
+
+Instead of modeling every possible path, the system groups patterns using signals and resolves them at the axis level.
+
+This keeps the tree:
+
+Scalable
+Maintainable
+Psychologically meaningful
+7. Reflection Design
+
+Reflections are carefully written to:
+
+Surface awareness without judgment
+Avoid moralizing or labeling
+Encourage small shifts in perspective
+
+They follow principles from motivational interviewing:
+
+The system does not tell the user what they are—it helps them notice patterns in how they showed up.
+
+8. Personalization Without Variability
+
+Personalization is achieved through:
+
+1. Answer Interpolation
+
+"You described your day as '{A1_OPEN.answer}'..."
+
+2. Signal-Based Framing
+
+"You showed signs of ownership..."
+
+This creates relevance without sacrificing determinism.
+
+9. Sample Paths
+Persona 1 — Reactive / Entitled / Self-Focused
+Describes day as tough
+Attributes difficulty externally
+Focuses on unmet expectations
+Frames challenges individually
+
+Outcome:
+The system highlights:
+
+overlooked agency
+limited contribution
+narrow perspective
+
+The tone remains non-judgmental, focusing on awareness rather than correction.
+
+Persona 2 — Proactive / Contributing / Other-Oriented
+Describes day as productive
+Attributes outcomes to own actions
+Contributes beyond role
+Considers team or customer impact
+
+Outcome:
+The system reinforces:
+
+ownership
+contribution
+outward perspective
+
+Encouraging consistency rather than escalation.
+
+10. User Experience Considerations
+
+The interaction is intentionally lightweight:
+
+~2–3 minutes to complete
+Minimal cognitive load
+Clear, structured progression
+
+This aligns with real-world usage—end-of-day reflection when users are mentally fatigued.
+
+11. Limitations
+Reflections are generalized at the axis level
+No longitudinal tracking across days
+Limited depth in summary variation
+
+These are conscious trade-offs to maintain simplicity and determinism.
+
+12. Future Improvements
+Multi-day tracking with trend visualization
+UI layer with axis-based dashboards
+More granular reflection categories
+Adaptive depth (quick vs deep reflection modes)
+Integration into broader coaching or management systems
+13. Conclusion
+
+This implementation demonstrates that meaningful behavioral reflection can be achieved through structured, deterministic systems.
+
+Instead of relying on probabilistic AI:
+
+The questions drive insight
+The structure ensures relevance
+The consistency builds trust
+
+This aligns with a core design principle:
+
+Intelligence should be encoded in the system’s structure—not inferred at runtime.
